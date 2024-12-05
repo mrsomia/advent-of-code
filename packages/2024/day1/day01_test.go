@@ -13,3 +13,11 @@ func TestPartA(t *testing.T) {
 		t.Fatalf("Expected: %v, Got: %v", expected, result)
 	}
 }
+
+func TestPartB(t *testing.T) {
+	result := day1.SolvePartB()
+	expected := 31
+	if result != expected {
+		t.Fatalf("Expected: %v, Got: %v", expected, result)
+	}
+}

@@ -51,3 +51,25 @@ func SolvePartA() int {
 
 	return t
 }
+
+func SolvePartB() int {
+	f := utils.OpenFile("../../../input/2024/day01.txt")
+	left, right := parseString(f)
+	m := make(map[int]int)
+
+	for _, n := range right {
+		current, ok := m[n]
+		if !ok {
+			current = 0
+		}
+		m[n] = current + 1
+	}
+
+	result := 0
+
+	for _, v := range left {
+		count := m[v]
+		result = result + (v * count)
+	}
+	return result
+}

@@ -13,3 +13,11 @@ func TestSolvePartA(t *testing.T) {
 		t.Errorf("Part A Failed, Expected: %v\nFound: %v\n", expected, result)
 	}
 }
+
+func TestSolvePartB(t *testing.T) {
+	expected := 4
+	result := day2.SolvePartB("../../../input/2024/day02.txt")
+	if result != expected {
+		t.Errorf("Part B Failed, Expected: %v\nFound: %v\n", expected, result)
+	}
+}

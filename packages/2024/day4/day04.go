@@ -1,7 +1,7 @@
 package day4
 
 import (
-	"fmt"
+	"log/slog"
 	"slices"
 	"strings"
 
@@ -27,6 +27,7 @@ var directions = map[string][]int{
 type CrossWord struct {
 	mapped [][]string
 	xPoses [][]int
+	aPoses [][]int
 }
 
 func NewCrossWord(lines []string) *CrossWord {
@@ -38,6 +39,9 @@ func NewCrossWord(lines []string) *CrossWord {
 		for x, char := range chars {
 			if char == "X" {
 				c.xPoses = append(c.xPoses, []int{x, y})
+			}
+			if char == "A" {
+				c.aPoses = append(c.aPoses, []int{x, y})
 			}
 		}
 	}
@@ -65,6 +69,22 @@ func (c *CrossWord) IsXmas(src, dir []int) bool {
 	return true
 }
 
+func (c *CrossWord) IsCrossMas(aPos []int) (ret bool) {
+	crossDirs := []string{"LU", "RD", "LD", "RU"}
+	otherChars := make([]string, len(crossDirs))
+	defer slog.Info("IsCrossMas", "aPos", aPos, "otherChars", otherChars)
+	for idx, dir := range crossDirs {
+		chg := directions[dir]
+		if !c.IsPointValid(aPos, chg) {
+			return false
+		}
+		pos := []int{aPos[0] + chg[0], aPos[1] + chg[1]}
+		otherChars[idx] = c.mapped[pos[1]][pos[0]]
+	}
+	return (((otherChars[0] == "M" && otherChars[1] == "S") || (otherChars[1] == "M" && otherChars[0] == "S")) &&
+		((otherChars[2] == "M" && otherChars[3] == "S") || (otherChars[3] == "M" && otherChars[2] == "S")))
+}
+
 func (c *CrossWord) GetXmases() int {
 	count := 0
 
@@ -78,11 +98,31 @@ func (c *CrossWord) GetXmases() int {
 	return count
 }
 
+func (c *CrossWord) GetCrossMases() int {
+	count := 0
+
+	for _, aPos := range c.aPoses {
+		isTrue := c.IsCrossMas(aPos)
+		slog.Info("IsCrossMas", "aPos", aPos, "isTrue", isTrue)
+		if isTrue {
+			count += 1
+		}
+	}
+	return count
+}
+
 func SolvePartA(filename string) int {
 	input := utils.OpenFile(filename)
 	lines := parseInput(input)
 	crossword := NewCrossWord(lines)
 	count := crossword.GetXmases()
-	fmt.Printf("count: %#v\n", count)
+	return count
+}
+
+func SolvePartB(filename string) int {
+	input := utils.OpenFile(filename)
+	lines := parseInput(input)
+	crossword := NewCrossWord(lines)
+	count := crossword.GetCrossMases()
 	return count
 }

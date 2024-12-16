@@ -10,10 +10,10 @@ func TestPartA(t *testing.T) {
 	}
 }
 
-// func TestPartB(t *testing.T) {
-// 	expected := 9
-// 	result := SolvePartB("../../../input/2024/day05.txt")
-// 	if result != expected {
-// 		t.Errorf("Part A failed, Expected: %v, Found: %v\n", expected, result)
-// 	}
-// }
+func TestPartB(t *testing.T) {
+	expected := 123
+	result := SolvePartB("../../../input/2024/day05.txt")
+	if result != expected {
+		t.Errorf("Part A failed, Expected: %v, Found: %v\n", expected, result)
+	}
+}

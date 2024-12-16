@@ -104,5 +104,27 @@ func SolvePartA(filename string) int {
 func SolvePartB(filename string) int {
 	input := utils.OpenFile(filename)
 	sections := parseInput(input)
-	return len(sections)
+	rules := ParseSection1(sections[0])
+	lines := ParseSection2(sections[1])
+
+	correctLines := [][]int{}
+	for _, line := range lines {
+		g := createGraph(rules, line)
+		sorted, err := graph.TopologicalSort(g)
+		if err != nil {
+			fmt.Printf("Error sorting line: %#v, err: %v\n", line, err)
+		}
+
+		compValue := slices.Compare(line, sorted)
+		if compValue != 0 {
+			correctLines = append(correctLines, sorted)
+		}
+	}
+
+	result := 0
+	for _, line := range correctLines {
+		idx := len(line) / 2
+		result += line[idx]
+	}
+	return result
 }

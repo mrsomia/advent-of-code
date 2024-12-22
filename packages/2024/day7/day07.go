@@ -45,9 +45,10 @@ func parseLines(lines []string) [][]int {
 }
 
 type Node struct {
-	left  *Node
-	right *Node
-	value int
+	add      *Node
+	multiply *Node
+	join     *Node
+	value    int
 }
 
 func CreateTree(line []int) *Node {
@@ -59,13 +60,17 @@ func CreateTree(line []int) *Node {
 	for _, n := range line[1:] {
 		nextRow := make([]*Node, 0)
 		for _, node := range currentNodes {
-			node.left = &Node{
+			node.add = &Node{
 				value: node.value + n,
 			}
-			node.right = &Node{
+			node.multiply = &Node{
 				value: node.value * n,
 			}
-			nextRow = append(nextRow, node.left, node.right)
+			joined, _ := strconv.Atoi(fmt.Sprintf("%d%d", node.value, n))
+			node.join = &Node{
+				value: joined,
+			}
+			nextRow = append(nextRow, node.add, node.multiply, node.join)
 		}
 		currentNodes = nextRow
 	}
@@ -74,26 +79,42 @@ func CreateTree(line []int) *Node {
 }
 
 func isTargetPresent(target int, head *Node) bool {
-	if target == head.value {
+	if head == nil {
+		return false
+	}
+	if target == head.value && head.add == nil {
 		return true
 	}
-	if head.left != nil {
-		switch isTargetPresent(target, head.left) {
-		case true:
-			return true
-		case false:
-			if head.right != nil {
-				return isTargetPresent(target, head.right)
-			}
-		}
+	if isTargetPresent(target, head.add) {
+		return true
+	} else {
+		return isTargetPresent(target, head.multiply)
 	}
-	return false
+}
+
+func isTargetPresent2(target int, head *Node) bool {
+	if head == nil {
+		return false
+	}
+	if target == head.value && head.add == nil {
+		return true
+	}
+	addNode := isTargetPresent2(target, head.add)
+	if addNode {
+		return true
+	}
+	multiplyNode := isTargetPresent2(target, head.multiply)
+	if multiplyNode {
+		return true
+	}
+
+	joinNode := isTargetPresent2(target, head.join)
+	return joinNode
 }
 
 func SolvePartA(filename string) int {
 	input := utils.OpenFile(filename)
 	lines := parseLines(parseInput(input))
-	fmt.Printf("lines: %#v\n", lines)
 
 	count := 0
 
@@ -111,6 +132,16 @@ func SolvePartA(filename string) int {
 func SolvePartB(filename string) int {
 	input := utils.OpenFile(filename)
 	lines := parseLines(parseInput(input))
-	fmt.Printf("lines: %#v\n", lines)
-	return len(lines)
+
+	count := 0
+
+	for _, line := range lines {
+		target := line[0]
+		treeHead := CreateTree(line[1:])
+		if isTargetPresent2(target, treeHead) {
+			count += target
+		}
+	}
+
+	return count
 }

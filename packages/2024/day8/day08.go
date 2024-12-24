@@ -2,6 +2,7 @@ package day8
 
 import (
 	"image"
+	"log/slog"
 	"maps"
 	"slices"
 	"strings"
@@ -79,5 +80,35 @@ func SolvePartA(filename string) int {
 func SolvePartB(filename string) int {
 	input := utils.OpenFile(filename)
 	lines := parseInput(input)
-	return len(lines)
+	g := NewGrid(lines)
+	bounds := image.Rect(0, 0, len(g.grid[0]), len(g.grid))
+	m := make(map[image.Point]bool)
+
+	for freq, antennas := range g.nodeMap {
+		slog.Info("freq", "freq", freq)
+		for i, a1 := range antennas {
+			for j := i + 1; j < len(antennas); j++ {
+				a2 := antennas[j]
+				slog.Info("antennas", "a1", a1, "a2", a2)
+				m[a1] = true
+				m[a2] = true
+
+				diff1 := a1.Sub(a2)
+				diff2 := a2.Sub(a1)
+				slog.Info("diffs", "diff1", diff1, "diff2", diff2)
+
+				for p1 := a1.Add(diff1); p1.In(bounds); p1 = p1.Add(diff1) {
+					slog.Info("point1", "p1", p1)
+					m[p1] = true
+				}
+
+				for p2 := a2.Add(diff2); p2.In(bounds); p2 = p2.Add(diff2) {
+					slog.Info("point2", "p2", p2)
+					m[p2] = true
+				}
+			}
+		}
+	}
+
+	return len(slices.Collect(maps.Keys(m)))
 }
